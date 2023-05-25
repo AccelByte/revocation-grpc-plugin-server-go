@@ -7,7 +7,7 @@ package revocation
 import (
 	"fmt"
 
-	pb "lootbox-roll-function-grpc-plugin-server-go/pkg/pb"
+	pb "revocation-grpc-plugin-server-go/pkg/pb"
 )
 
 type RevokeEntryType string

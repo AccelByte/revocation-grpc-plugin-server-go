@@ -58,4 +58,4 @@ Thumbs.db
 pkg/pb/
 
 # Go build output
-lootbox-roll-function-grpc-plugin-server-go
+revocation-grpc-plugin-server-go

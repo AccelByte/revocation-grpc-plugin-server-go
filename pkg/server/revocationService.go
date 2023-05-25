@@ -7,8 +7,8 @@ package server
 import (
 	"context"
 
-	pb "lootbox-roll-function-grpc-plugin-server-go/pkg/pb"
-	"lootbox-roll-function-grpc-plugin-server-go/pkg/server/revocation"
+	pb "revocation-grpc-plugin-server-go/pkg/pb"
+	"revocation-grpc-plugin-server-go/pkg/server/revocation"
 )
 
 type RevocationServiceServer struct {
