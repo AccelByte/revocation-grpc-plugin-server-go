@@ -1,4 +1,4 @@
-module lootbox-roll-function-grpc-plugin-server-go
+module revocation-grpc-plugin-server-go
 
 go 1.19
 

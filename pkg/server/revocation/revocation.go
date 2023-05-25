@@ -7,7 +7,7 @@ package revocation
 import (
 	"fmt"
 
-	pb "lootbox-roll-function-grpc-plugin-server-go/pkg/pb"
+	pb "revocation-grpc-plugin-server-go/pkg/pb"
 )
 
 type RevokeEntryType string
@@ -41,6 +41,7 @@ func (r *ItemRevocation) Revoke(namespace string, userId string, quantity int32,
 	customRevocation["itemType"] = item.GetItemType()
 	customRevocation["useCount"] = fmt.Sprintf("%d", item.GetUseCount())
 	customRevocation["entitlementType"] = item.GetEntitlementType()
+
 	return &pb.RevokeResponse{
 		Status:           StatusSuccess,
 		CustomRevocation: customRevocation,
@@ -78,6 +79,7 @@ func (r *EntitlementRevocation) Revoke(namespace string, userId string, quantity
 	customRevocation["entitlementId"] = entitlement.GetEntitlementId()
 	customRevocation["itemId"] = entitlement.GetItemId()
 	customRevocation["sku"] = entitlement.GetSku()
+
 	return &pb.RevokeResponse{
 		Status:           StatusSuccess,
 		CustomRevocation: customRevocation,
@@ -94,5 +96,6 @@ func GetRevocation(revocationType RevokeEntryType) (Revocation, error) {
 	if revocation, ok := revocations[revocationType]; ok {
 		return revocation, nil
 	}
+
 	return nil, fmt.Errorf("revocation type '%s' is not supported", revocationType)
 }

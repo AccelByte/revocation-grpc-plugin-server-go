@@ -32,8 +32,8 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	pb "lootbox-roll-function-grpc-plugin-server-go/pkg/pb"
-	"lootbox-roll-function-grpc-plugin-server-go/pkg/server"
+	pb "revocation-grpc-plugin-server-go/pkg/pb"
+	"revocation-grpc-plugin-server-go/pkg/server"
 
 	sdkAuth "github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/utils/auth"
 	prometheusGrpc "github.com/grpc-ecosystem/go-grpc-prometheus"
