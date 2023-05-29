@@ -74,6 +74,7 @@ linters:
     - forcetypeassert
     - gochecknoglobals
     - scopelint
+    - forbidigo
 
   fast: true
 

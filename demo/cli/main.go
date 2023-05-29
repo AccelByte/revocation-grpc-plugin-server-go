@@ -15,7 +15,7 @@ import (
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/service/iam"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/utils/auth"
 
-	"cli/pkg"
+	revocationdemo "revocation-grpc-plugin-server-go-cli/pkg"
 )
 
 func main() {
@@ -92,6 +92,7 @@ func startTesting(
 		err = pdu.UnsetPlatformServiceGrpcTarget()
 		if err != nil {
 			fmt.Printf("failed to unset platform service grpc plugin url")
+
 			return
 		}
 	}()
@@ -174,5 +175,6 @@ func startTesting(
 		fmt.Printf("reason: %s\n", r.Reason)
 		fmt.Printf("custom revocation: %s\n", r.CustomRevocation)
 	}
+
 	return nil
 }

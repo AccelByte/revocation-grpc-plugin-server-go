@@ -1,4 +1,4 @@
-module cli
+module revocation-grpc-plugin-server-go-cli
 
 go 1.19
 
