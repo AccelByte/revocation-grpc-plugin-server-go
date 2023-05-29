@@ -75,6 +75,7 @@ linters:
     - gochecknoglobals
     - scopelint
     - forbidigo
+    - nosnakecase
 
   fast: true
 

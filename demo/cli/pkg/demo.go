@@ -55,6 +55,7 @@ func (p *PlatformDataUnit) SetPlatformServiceGrpcTarget() error {
 		},
 		Namespace: p.CLIConfig.ABNamespace,
 	})
+
 	return err
 }
 
@@ -121,6 +122,7 @@ func (p *PlatformDataUnit) publishStoreChange() error {
 	if err != nil {
 		return fmt.Errorf("could not publish store: %w", err)
 	}
+
 	return nil
 }
 
@@ -145,8 +147,9 @@ func (p *PlatformDataUnit) CreateCategory(categoryPath string, doPublish bool) e
 		},
 	})
 	if err != nil {
-		fmt.Errorf("could not create new category: %w", err)
+		return fmt.Errorf("could not create new category: %w", err)
 	}
+
 	return nil
 }
 
@@ -156,6 +159,7 @@ func (p *PlatformDataUnit) UnsetPlatformServiceGrpcTarget() error {
 		ConfigRepository: p.ConfigRepo,
 		TokenRepository:  p.TokenRepo,
 	}
+
 	return wrapper.DeleteServicePluginConfigShort(&service_plugin_config.DeleteServicePluginConfigParams{
 		Namespace: p.CLIConfig.ABNamespace,
 	})
@@ -171,6 +175,7 @@ func (p *PlatformDataUnit) DeleteCurrency() error {
 		Namespace:    p.CLIConfig.ABNamespace,
 		CurrencyCode: p.CurrencyCode,
 	})
+
 	return err
 }
 
@@ -184,6 +189,7 @@ func (p *PlatformDataUnit) DeleteStore() error {
 		Namespace: p.CLIConfig.ABNamespace,
 		StoreID:   p.storeID,
 	})
+
 	return err
 }
 
@@ -209,6 +215,7 @@ func (p *PlatformDataUnit) UpdateRevocationConfig() error {
 			},
 		},
 	})
+
 	return err
 }
 
@@ -302,6 +309,7 @@ func (p *PlatformDataUnit) CreateOrder(userID string, itemInfo SimpleItemInfo) (
 		ConfigRepository: p.ConfigRepo,
 		TokenRepository:  p.TokenRepo,
 	}
+
 	return orderWrapper.PublicCreateUserOrderShort(&order.PublicCreateUserOrderParams{
 		Namespace: p.CLIConfig.ABNamespace,
 		UserID:    userID,
@@ -321,6 +329,7 @@ func (p *PlatformDataUnit) Revoke(userID string, orderNo string, itemID string) 
 		ConfigRepository: p.ConfigRepo,
 		TokenRepository:  p.TokenRepo,
 	}
+
 	return revocationWrapper.DoRevocationShort(&revocation.DoRevocationParams{
 		Namespace: p.CLIConfig.ABNamespace,
 		UserID:    userID,

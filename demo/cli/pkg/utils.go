@@ -18,6 +18,7 @@ func Val[K any](ptr *K) K {
 		return *ptr
 	}
 	var empty K
+
 	return empty
 }
 
@@ -30,8 +31,10 @@ func RandomString(characters string, length int) string {
 			if i > 0 && result[i-1] == result[i] {
 				continue
 			}
+
 			break
 		}
 	}
+
 	return string(result)
 }
