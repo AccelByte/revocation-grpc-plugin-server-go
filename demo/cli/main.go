@@ -16,6 +16,7 @@ import (
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/utils/auth"
 
 	revocationdemo "revocation-grpc-plugin-server-go-cli/pkg"
+	"revocation-grpc-plugin-server-go-cli/pkg/client/platformservice"
 )
 
 func main() {
@@ -31,6 +32,10 @@ func main() {
 		Client:           factory.NewIamClient(configRepo),
 		ConfigRepository: configRepo,
 		TokenRepository:  tokenRepo,
+	}
+	platformSvc, err := platformservice.NewClient(config.ABBaseURL, oauthService.TokenRepository)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	fmt.Print("Login to AccelByte... ")
@@ -52,7 +57,7 @@ func main() {
 	fmt.Printf("User: %s\n", userInfo.UserName)
 
 	// Start testing
-	err = startTesting(userInfo, config, configRepo, tokenRepo)
+	err = startTesting(userInfo, config, configRepo, tokenRepo, platformSvc)
 	if err != nil {
 		fmt.Println("\n[FAILED]")
 		log.Fatal(err)
@@ -63,13 +68,15 @@ func startTesting(
 	userInfo *iamclientmodels.ModelUserResponseV3,
 	config *revocationdemo.Config,
 	configRepo repository.ConfigRepository,
-	tokenRepo repository.TokenRepository) error {
+	tokenRepo repository.TokenRepository,
+	platformSvc *platformservice.Client) error {
 	categoryPath := "/goRevocationPluginDemo"
 	pdu := revocationdemo.PlatformDataUnit{
-		CLIConfig:    config,
-		ConfigRepo:   configRepo,
-		TokenRepo:    tokenRepo,
-		CurrencyCode: "VCA",
+		CLIConfig:         config,
+		ConfigRepo:        configRepo,
+		TokenRepo:         tokenRepo,
+		PlatformClientSvc: platformSvc,
+		CurrencyCode:      "VCA",
 	}
 
 	// clean up
@@ -101,6 +108,8 @@ func startTesting(
 	fmt.Print("Configuring platform service grpc target... ")
 	err := pdu.SetPlatformServiceGrpcTarget()
 	if err != nil {
+		fmt.Println("[ERR]")
+
 		return err
 	}
 	fmt.Println("[OK]")
@@ -109,6 +118,8 @@ func startTesting(
 	fmt.Print("Creating store... ")
 	err = pdu.CreateStore(true)
 	if err != nil {
+		fmt.Println("[ERR]")
+
 		return err
 	}
 	fmt.Println("[OK]")
@@ -117,6 +128,8 @@ func startTesting(
 	fmt.Print("Creating category... ")
 	err = pdu.CreateCategory(categoryPath, true)
 	if err != nil {
+		fmt.Println("[ERR]")
+
 		return err
 	}
 	fmt.Println("[OK]")
@@ -125,6 +138,8 @@ func startTesting(
 	fmt.Print("Updating Revocation config... ")
 	err = pdu.UpdateRevocationConfig()
 	if err != nil {
+		fmt.Println("[ERR]")
+
 		return err
 	}
 	fmt.Println("[OK]")
@@ -133,6 +148,8 @@ func startTesting(
 	fmt.Print("Setting up virtual currency [VCA]... ")
 	err = pdu.CreateCurrency()
 	if err != nil {
+		fmt.Println("[ERR]")
+
 		return err
 	}
 	fmt.Println("[OK]")
@@ -141,6 +158,8 @@ func startTesting(
 	fmt.Print("Creating items...")
 	itemInfos, err := pdu.CreateItems(1, categoryPath, true)
 	if err != nil {
+		fmt.Println("[ERR]")
+
 		return err
 	}
 	fmt.Println("[OK]")
@@ -149,6 +168,8 @@ func startTesting(
 	fmt.Print("Creating order...")
 	orderInfo, err := pdu.CreateOrder(revocationdemo.Val(userInfo.UserID), itemInfos[0])
 	if err != nil {
+		fmt.Println("[ERR]")
+
 		return err
 	}
 	fmt.Println("[OK]")
@@ -157,6 +178,8 @@ func startTesting(
 	fmt.Print("Revoking order...")
 	revocationResult, err := pdu.Revoke(revocationdemo.Val(userInfo.UserID), revocationdemo.Val(orderInfo.OrderNo), revocationdemo.Val(orderInfo.ItemID))
 	if err != nil {
+		fmt.Println("[ERR]")
+
 		return err
 	}
 	fmt.Println("[OK]")
