@@ -13,13 +13,15 @@ import (
 	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclient/item"
 	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclient/order"
 	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclient/revocation"
-	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclient/service_plugin_config"
 	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclient/store"
 	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclientmodels"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/factory"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/repository"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/service/platform"
 	"github.com/pkg/errors"
+
+	"revocation-grpc-plugin-server-go-cli/pkg/client/platformservice"
+	"revocation-grpc-plugin-server-go-cli/pkg/client/platformservice/openapi2/models"
 )
 
 var (
@@ -30,33 +32,39 @@ var (
 var errEmptyStoreID = errors.New("error empty store id, createStore first")
 
 type PlatformDataUnit struct {
-	CLIConfig    *Config
-	ConfigRepo   repository.ConfigRepository
-	TokenRepo    repository.TokenRepository
-	storeID      string
-	CurrencyCode string
+	CLIConfig         *Config
+	ConfigRepo        repository.ConfigRepository
+	TokenRepo         repository.TokenRepository
+	PlatformClientSvc *platformservice.Client
+	storeID           string
+	CurrencyCode      string
 }
 
 func (p *PlatformDataUnit) SetPlatformServiceGrpcTarget() error {
-	grpcServerUrl := p.CLIConfig.GRPCServerURL
-	if grpcServerUrl == "" {
-		return errors.New("gRPC server url can't be empty")
+	if p.CLIConfig.GRPCServerURL != "" {
+		fmt.Printf("(Custom Host: %s) ", p.CLIConfig.GRPCServerURL)
+
+		return p.PlatformClientSvc.UpdateRevocationPluginConfig(p.CLIConfig.ABNamespace, &models.RevocationPluginConfigUpdate{
+			ExtendType: Ptr(models.RevocationPluginConfigInfoExtendTypeCUSTOM),
+			CustomConfig: &models.BaseCustomConfig{
+				ConnectionType:    Ptr(models.BaseCustomConfigConnectionTypeINSECURE),
+				GrpcServerAddress: Ptr(p.CLIConfig.GRPCServerURL),
+			},
+		})
 	}
 
-	wrapper := platform.ServicePluginConfigService{
-		Client:           factory.NewPlatformClient(p.ConfigRepo),
-		ConfigRepository: p.ConfigRepo,
-		TokenRepository:  p.TokenRepo,
-	}
-	// call https://demo.accelbyte.io/platform/apidocs/#/ServicePluginConfig/updateServicePluginConfig
-	_, err := wrapper.UpdateServicePluginConfigShort(&service_plugin_config.UpdateServicePluginConfigParams{
-		Body: &platformclientmodels.ServicePluginConfigUpdate{
-			GrpcServerAddress: grpcServerUrl,
-		},
-		Namespace: p.CLIConfig.ABNamespace,
-	})
+	if p.CLIConfig.ExtendAppName != "" {
+		fmt.Printf("(Extend App: %s) ", p.CLIConfig.ExtendAppName)
 
-	return err
+		return p.PlatformClientSvc.UpdateRevocationPluginConfig(p.CLIConfig.ABNamespace, &models.RevocationPluginConfigUpdate{
+			ExtendType: Ptr(models.RevocationPluginConfigInfoExtendTypeAPP),
+			AppConfig: &models.AppConfig{
+				AppName: Ptr(p.CLIConfig.ExtendAppName),
+			},
+		})
+	}
+
+	return nil
 }
 
 func (p *PlatformDataUnit) CreateStore(doPublish bool) error {
@@ -154,15 +162,7 @@ func (p *PlatformDataUnit) CreateCategory(categoryPath string, doPublish bool) e
 }
 
 func (p *PlatformDataUnit) UnsetPlatformServiceGrpcTarget() error {
-	wrapper := platform.ServicePluginConfigService{
-		Client:           factory.NewPlatformClient(p.ConfigRepo),
-		ConfigRepository: p.ConfigRepo,
-		TokenRepository:  p.TokenRepo,
-	}
-
-	return wrapper.DeleteServicePluginConfigShort(&service_plugin_config.DeleteServicePluginConfigParams{
-		Namespace: p.CLIConfig.ABNamespace,
-	})
+	return p.PlatformClientSvc.DeleteRevocationPluginConfig(p.CLIConfig.ABNamespace)
 }
 
 func (p *PlatformDataUnit) DeleteCurrency() error {
