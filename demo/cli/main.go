@@ -62,6 +62,7 @@ func main() {
 		fmt.Println("\n[FAILED]")
 		log.Fatal(err)
 	}
+	fmt.Println("[SUCCESS]")
 }
 
 func startTesting(
