@@ -22,7 +22,7 @@ contains a docker compose which consists of these `dependency services`.
 
 ## Overview
 
-This repository contains a `revocation gRPC server app` written in `Golang`. It provides a simple custom revocation function for platform service in AccelByte Gaming Services.
+This repository contains a `revocation gRPC server app` written in `Go`. It provides a simple custom revocation function for platform service in AccelByte Gaming Services.
 
 This sample app also shows how this `gRPC server` can be instrumented for better observability. 
 It is configured by default to send metrics, traces, and logs to the observability `dependency services` in [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies).
@@ -44,6 +44,12 @@ It is configured by default to send metrics, traces, and logs to the observabili
        docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
 
     f. go v1.19
+
+    g. git
+
+    h. [ngrok](https://ngrok.com/)
+
+    i. [postman](https://www.postman.com/)
 
 2. A local copy of [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) repository.
 
@@ -75,7 +81,7 @@ To be able to run this sample app, you will need to follow these setup steps.
    ```
 
    > :warning: **Keep PLUGIN_GRPC_SERVER_AUTH_ENABLED=false for now**: It is currently not
-   supported by AccelByte Gaming Services but it will be enabled later on to improve security. If it is
+   supported by AccelByte Gaming Services, but it will be enabled later on to improve security. If it is
    enabled, the gRPC server will reject any calls from gRPC clients without proper authorization
    metadata.
 
@@ -105,7 +111,7 @@ docker-compose up
 
 OR
 
-To build, create a docker image, and run the this sample app in one go, use the following command.
+To build, create a docker image, and run this sample app in one go, use the following command.
 
 ```
 docker-compose up --build
@@ -119,7 +125,7 @@ The custom functions in this sample app can be tested locally using `postman`.
 
 1. Start the `dependency services` by following the `README.md` in the [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) repository.
 
-   > :warning: **Make sure to start dependency services with mTLS disabled for now**: It is currently not supported by AccelByte Gaming Services but it will be enabled later on to improve security. If it is enabled, the gRPC client calls without mTLS will be rejected by Envoy proxy.
+   > :warning: **Make sure to start dependency services with mTLS disabled for now**: It is currently not supported by AccelByte Gaming Services, but it will be enabled later on to improve security. If it is enabled, the gRPC client calls without mTLS will be rejected by Envoy proxy.
 
 2. Run this `gRPC server` sample app.
 
@@ -186,7 +192,7 @@ in local development environment to the internet so that it can be called by
 
 1. Start the `dependency services` by following the `README.md` in the [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) repository.
 
-   > :warning: **Make sure to start dependency services with mTLS disabled for now**: It is currently not supported by AccelByte Gaming Services but it will be enabled later on to improve security. If it is enabled, the gRPC client calls without mTLS will be rejected by Envoy proxy.
+   > :warning: **Make sure to start dependency services with mTLS disabled for now**: It is currently not supported by AccelByte Gaming Services, but it will be enabled later on to improve security. If it is enabled, the gRPC client calls without mTLS will be rejected by Envoy proxy.
 
 2. Start this `gRPC server` sample app.
 
@@ -203,7 +209,7 @@ in local development environment to the internet so that it can be called by
   - ADMIN:NAMESPACE:{namespace}:PLUGIN:REVOCATION [UPDATE, DELETE]
   - ADMIN:NAMESPACE:{namespace}:REVOCATION [UPDATE]
   - ADMIN:NAMESPACE:{namespace}:USER:*:REVOCATION [UPDATE]
-  - ADMIN:NAMESPACE:{namespace}:STORE [ READ, CREATE, UPDATE, DELETE ]
+  - ADMIN:NAMESPACE:{namespace}:STORE [READ, CREATE, UPDATE, DELETE]
   - ADMIN:NAMESPACE:{namespace}:CATEGORY [CREATE]
   - ADMIN:NAMESPACE:{namespace}:ITEM [CREATE, DELETE]
   - ADMIN:NAMESPACE:{namespace}:CURRENCY [CREATE, DELETE]
@@ -215,15 +221,18 @@ in local development environment to the internet so that it can be called by
 7. Set the necessary environment variables in [.env.example](demo/cli/.env.example) and run the [Makefile](Makefile) CLI command. The CLI will set up the necessary configuration and then give you instructions on how to configure platform service. If successful, the word `[SUCCESS]` will be print out in the terminal.
 
    ```
-   cd demo/cli
-   export AB_BASE_URL='https://demo.accelbyte.io'
-   export AB_CLIENT_ID='xxxxxxxxxx'       # Use Client ID from the previous step
-   export AB_CLIENT_SECRET='xxxxxxxxxx'   # Use Client secret from the previous step
-   export AB_NAMESPACE='xxxxxxxxxx'       # Use your Namespace ID
-   export AB_USERNAME='xxxxxxxxxx'       # Use your Namespace Username
-   export AB_PASSWORD='xxxxxxxxxx'       # Use your Namespace Password
-   export GRPC_SERVER_URL='0.tcp.ap.ngrok.io:xxxxx'   # Use your ngrok forwarding URL without `https://`
-   make run ENV_FILE_PATH=.env.example
+   AB_BASE_URL='https://demo.accelbyte.io'
+   AB_CLIENT_ID='xxxxxxxxxx'       # Use Client ID from the previous step
+   AB_CLIENT_SECRET='xxxxxxxxxx'   # Use Client secret from the previous step
+   AB_NAMESPACE='xxxxxxxxxx'       # Use your Namespace ID
+   AB_USERNAME='xxxxxxxxxx'       # Use your Namespace Username
+   AB_PASSWORD='xxxxxxxxxx'       # Use your Namespace Password
+   GRPC_SERVER_URL='0.tcp.ap.ngrok.io:xxxxx'   # Use your ngrok forwarding URL without `https://`
+   ```
+   then run in the terminal
+   ```
+   $ cd demo/cli
+   $ make run ENV_FILE_PATH=.env.example
    ```
 
 > :warning: **Ngrok free plan has some limitations**: You may want to use paid plan if the traffic is high.
