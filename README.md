@@ -22,7 +22,7 @@ contains a docker compose which consists of these `dependency services`.
 
 ## Overview
 
-This repository contains a `revocation gRPC server app` written in `Go`. It provides a simple custom revocation function for platform service in AccelByte Gaming Services.
+This repository contains a `revocation gRPC server app` written in `Go`. It provides a simple custom revocation function for platform service in `AccelByte Gaming Services`.
 
 This sample app also shows how this `gRPC server` can be instrumented for better observability. 
 It is configured by default to send metrics, traces, and logs to the observability `dependency services` in [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies).
@@ -31,25 +31,27 @@ It is configured by default to send metrics, traces, and logs to the observabili
 
 1. Windows 10 WSL2 or Linux Ubuntu 20.04 with the following tools installed.
 
-    a. bash
+   a. bash
 
-    b. make 
+   b. make 
 
-    c. docker v23.x
+   c. docker v23.x
 
-    d. docker-compose v2.x
+   d. docker-compose v2.x
 
-    e. docker loki driver
+   e. docker loki driver
 
-       docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+      ```
+      docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+      ```
 
-    f. go v1.19
+   f. go v1.19
 
-    g. git
+   g. git
 
-    h. [ngrok](https://ngrok.com/)
+   h. [ngrok](https://ngrok.com/)
 
-    i. [postman](https://www.postman.com/)
+   i. [postman](https://www.postman.com/)
 
 2. A local copy of [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) repository.
 
@@ -74,14 +76,14 @@ To be able to run this sample app, you will need to follow these setup steps.
 
    ```
    AB_BASE_URL=https://demo.accelbyte.io      # Base URL of AccelByte Gaming Services demo environment
-   AB_CLIENT_ID='xxxxxxxxxx'                  # Use Client ID from the Setup section
-   AB_CLIENT_SECRET='xxxxxxxxxx'              # Use Client Secret from the Setup section
-   AB_NAMESPACE='xxxxxxxxxx'                  # Use Namespace ID from the Setup section
+   AB_CLIENT_ID='xxxxxxxxxx'                  # Use Client ID from the Prerequisites section
+   AB_CLIENT_SECRET='xxxxxxxxxx'              # Use Client Secret from the Prerequisites section
+   AB_NAMESPACE='xxxxxxxxxx'                  # Use Namespace ID from the Prerequisites section
    PLUGIN_GRPC_SERVER_AUTH_ENABLED=false      # Enable or disable access token and permission verification
    ```
 
    > :warning: **Keep PLUGIN_GRPC_SERVER_AUTH_ENABLED=false for now**: It is currently not
-   supported by AccelByte Gaming Services, but it will be enabled later on to improve security. If it is
+   supported by `AccelByte Gaming Services`, but it will be enabled later on to improve security. If it is
    enabled, the gRPC server will reject any calls from gRPC clients without proper authorization
    metadata.
 
@@ -93,25 +95,9 @@ To build this sample app, use the following command.
 make build
 ```
 
-To build and create a docker image of this sample app, use the following command.
-
-```
-make image
-```
-
-For more details about the command, see [Makefile](Makefile).
-
 ## Running
 
-To run the existing docker image of this sample app which has been built before, use the following command.
-
-```
-docker-compose up
-```
-
-OR
-
-To build, create a docker image, and run this sample app in one go, use the following command.
+To (build and) run this sample app in a container, use the following command.
 
 ```
 docker-compose up --build
@@ -123,19 +109,19 @@ docker-compose up --build
 
 The custom functions in this sample app can be tested locally using `postman`.
 
-1. Start the `dependency services` by following the `README.md` in the [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) repository.
+1. Run the `dependency services` by following the `README.md` in the [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) repository.
 
-   > :warning: **Make sure to start dependency services with mTLS disabled for now**: It is currently not supported by AccelByte Gaming Services, but it will be enabled later on to improve security. If it is enabled, the gRPC client calls without mTLS will be rejected by Envoy proxy.
+   > :warning: **Make sure to start dependency services with mTLS disabled for now**: It is currently not supported by `AccelByte Gaming Services`, but it will be enabled later on to improve security. If it is enabled, the gRPC client calls without mTLS will be rejected.
 
 2. Run this `gRPC server` sample app.
 
 3. Open `postman`, create a new `gRPC request` (tutorial [here](https://blog.postman.com/postman-now-supports-grpc/)), and enter `localhost:10000` as server URL.
 
-   > :exclamation: We are essentially accessing the `gRPC server` through an `Envoy` proxy which is a part of `dependency services`.
+   > :exclamation: We are essentially accessing the `gRPC server` through an `Envoy` proxy in `dependency services`.
 
 4. In `postman`, continue by selecting `Revocation/Revoke` method and invoke it with the sample message below.
 
-```json
+   ```json
    {
        "revokeEntryType": "CURRENCY",
        "namespace": "test",
@@ -151,37 +137,37 @@ The custom functions in this sample app can be tested locally using `postman`.
 
 5. If successful, you will see the customRevocation(s) in the response.
 
-```json
-{
-   "status": "SUCCESS",
-   "customRevocation": [
-      {
-         "key": "namespace",
-         "value": "test"
-      },
-      {
-         "key": "userId",
-         "value": "4423f033c38a40b9afdc8844e13647b7"
-      },
-      {
-         "key": "quantity",
-         "value": "1"
-      },
-      {
-         "key": "currencyNamespace",
-         "value": "test"
-      },
-      {
-         "key": "currencyCode",
-         "value": "VCA"
-      },
-      {
-         "key": "balanceOrigin",
-         "value": "SYSTEM"
-      }
-   ]
-}
-```
+   ```json
+   {
+      "status": "SUCCESS",
+      "customRevocation": [
+         {
+            "key": "namespace",
+            "value": "test"
+         },
+         {
+            "key": "userId",
+            "value": "4423f033c38a40b9afdc8844e13647b7"
+         },
+         {
+            "key": "quantity",
+            "value": "1"
+         },
+         {
+            "key": "currencyNamespace",
+            "value": "test"
+         },
+         {
+            "key": "currencyCode",
+            "value": "VCA"
+         },
+         {
+            "key": "balanceOrigin",
+            "value": "SYSTEM"
+         }
+      ]
+   }
+   ```
 
 ### Integration Test with AccelByte Gaming Services
 
@@ -190,11 +176,11 @@ integration test with `AccelByte Gaming Services`. Here, we are going to expose 
 in local development environment to the internet so that it can be called by
 `AccelByte Gaming Services`. To do this without requiring public IP, we can use [ngrok](https://ngrok.com/)
 
-1. Start the `dependency services` by following the `README.md` in the [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) repository.
+1. Run the `dependency services` by following the `README.md` in the [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) repository.
 
-   > :warning: **Make sure to start dependency services with mTLS disabled for now**: It is currently not supported by AccelByte Gaming Services, but it will be enabled later on to improve security. If it is enabled, the gRPC client calls without mTLS will be rejected by Envoy proxy.
+   > :warning: **Make sure to start dependency services with mTLS disabled for now**: It is currently not supported by `AccelByte Gaming Services`, but it will be enabled later on to improve security. If it is enabled, the gRPC client calls without mTLS will be rejected.
 
-2. Start this `gRPC server` sample app.
+2. Run this `gRPC server` sample app.
 
 3. Sign-in/sign-up to [ngrok](https://ngrok.com/) and get your auth token in `ngrok` dashboard.
 
@@ -204,17 +190,17 @@ in local development environment to the internet so that it can be called by
    make ngrok NGROK_AUTHTOKEN=xxxxxxxxxxx    # Use your ngrok auth token
    ```
 
-5. [Create an OAuth Client](https://docs.accelbyte.io/guides/access/iam-client.html) with `confidential` client type with the following permissions.  Keep the `Client ID` and `Client Secret`. This is different from the Oauth Client from the Setup section and it is required by CLI demo app [here](demo/cli/) in the next step to register the `gRPC Server` URL.
+5. [Create an OAuth Client](https://docs.accelbyte.io/guides/access/iam-client.html) with `confidential` client type with the following permissions.  Keep the `Client ID` and `Client Secret`. This is different from the Oauth Client from the Prerequisites section and it is required by CLI demo app [here](demo/cli/) in the next step to register the `gRPC Server` URL.
 
-  - ADMIN:NAMESPACE:{namespace}:PLUGIN:REVOCATION [UPDATE, DELETE]
-  - ADMIN:NAMESPACE:{namespace}:REVOCATION [UPDATE]
-  - ADMIN:NAMESPACE:{namespace}:USER:*:REVOCATION [UPDATE]
-  - ADMIN:NAMESPACE:{namespace}:STORE [READ, CREATE, UPDATE, DELETE]
-  - ADMIN:NAMESPACE:{namespace}:CATEGORY [CREATE]
-  - ADMIN:NAMESPACE:{namespace}:ITEM [CREATE, DELETE]
-  - ADMIN:NAMESPACE:{namespace}:CURRENCY [CREATE, DELETE]
+   - ADMIN:NAMESPACE:{namespace}:PLUGIN:REVOCATION [UPDATE, DELETE]
+   - ADMIN:NAMESPACE:{namespace}:REVOCATION [UPDATE]
+   - ADMIN:NAMESPACE:{namespace}:USER:*:REVOCATION [UPDATE]
+   - ADMIN:NAMESPACE:{namespace}:STORE [READ, CREATE, UPDATE, DELETE]
+   - ADMIN:NAMESPACE:{namespace}:CATEGORY [CREATE]
+   - ADMIN:NAMESPACE:{namespace}:ITEM [CREATE, DELETE]
+   - ADMIN:NAMESPACE:{namespace}:CURRENCY [CREATE, DELETE]
 
-  > :warning: **Oauth Client created in this step is different from the one from Setup section:** It is required by CLI demo app [here](demo/cli/) in the next step to register the `gRPC Server` URL.
+   > :warning: **Oauth Client created in this step is different from the one from Prerequisites section:** It is required by CLI demo app [here](demo/cli/) in the next step to register the `gRPC Server` URL.
 
 6. Create a user for testing. Keep the `Username` and `Password`.
 
@@ -237,14 +223,10 @@ in local development environment to the internet so that it can be called by
 
 > :warning: **Ngrok free plan has some limitations**: You may want to use paid plan if the traffic is high.
 
-## Advanced
+## Pushing
 
-### Building Multi-Arch Docker Image
-
-To create a multi-arch docker image of the project, use the following command.
+To build and push this sample app multi-arch container image to AWS ECR, use the following command.
 
 ```
-make imagex
+make imagex_push REPO_URL=xxxxxxxxxx.dkr.ecr.us-west-2.amazonaws.com/accelbyte/justice/development/extend/xxxxxxxxxx/xxxxxxxxxx IMAGE_TAG=v0.0.1
 ```
-
-For more details about the command, see [Makefile](Makefile).
