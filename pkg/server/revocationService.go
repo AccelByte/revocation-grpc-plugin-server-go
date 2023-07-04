@@ -7,6 +7,8 @@ package server
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	pb "revocation-grpc-plugin-server-go/pkg/pb"
 	"revocation-grpc-plugin-server-go/pkg/server/revocation"
 )
@@ -20,6 +22,7 @@ func NewRevocationServiceServer() *RevocationServiceServer {
 }
 
 func (s *RevocationServiceServer) Revoke(ctx context.Context, req *pb.RevokeRequest) (*pb.RevokeResponse, error) {
+	logrus.Infof("Revocation Request: %s", LogJSONFormatter(req))
 	revocationEntryType := revocation.RevokeEntryType(req.GetRevokeEntryType())
 	revocationObj, err := revocation.GetRevocation(revocationEntryType)
 	if err != nil {
@@ -36,6 +39,7 @@ func (s *RevocationServiceServer) Revoke(ctx context.Context, req *pb.RevokeRequ
 			Reason: err.Error(),
 		}, nil
 	}
+	logrus.Infof("Revocation Response: %s", LogJSONFormatter(revocationResp))
 
 	return revocationResp, nil
 }
