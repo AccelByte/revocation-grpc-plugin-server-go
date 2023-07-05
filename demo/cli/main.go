@@ -16,7 +16,6 @@ import (
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/utils/auth"
 
 	revocationdemo "revocation-grpc-plugin-server-go-cli/pkg"
-	"revocation-grpc-plugin-server-go-cli/pkg/client/platformservice"
 )
 
 func main() {
@@ -32,10 +31,6 @@ func main() {
 		Client:           factory.NewIamClient(configRepo),
 		ConfigRepository: configRepo,
 		TokenRepository:  tokenRepo,
-	}
-	platformSvc, err := platformservice.NewClient(config.ABBaseURL, oauthService.TokenRepository)
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	fmt.Print("Login to AccelByte... ")
@@ -57,7 +52,7 @@ func main() {
 	fmt.Printf("User: %s\n", userInfo.UserName)
 
 	// Start testing
-	err = startTesting(userInfo, config, configRepo, tokenRepo, platformSvc)
+	err = startTesting(userInfo, config, configRepo, tokenRepo)
 	if err != nil {
 		fmt.Println("\n[FAILED]")
 		log.Fatal(err)
@@ -69,15 +64,13 @@ func startTesting(
 	userInfo *iamclientmodels.ModelUserResponseV3,
 	config *revocationdemo.Config,
 	configRepo repository.ConfigRepository,
-	tokenRepo repository.TokenRepository,
-	platformSvc *platformservice.Client) error {
+	tokenRepo repository.TokenRepository) error {
 	categoryPath := "/goRevocationPluginDemo"
 	pdu := revocationdemo.PlatformDataUnit{
-		CLIConfig:         config,
-		ConfigRepo:        configRepo,
-		TokenRepo:         tokenRepo,
-		PlatformClientSvc: platformSvc,
-		CurrencyCode:      "VCA",
+		CLIConfig:    config,
+		ConfigRepo:   configRepo,
+		TokenRepo:    tokenRepo,
+		CurrencyCode: "VCA",
 	}
 
 	// clean up

@@ -13,15 +13,13 @@ import (
 	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclient/item"
 	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclient/order"
 	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclient/revocation"
+	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclient/service_plugin_config"
 	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclient/store"
 	"github.com/AccelByte/accelbyte-go-sdk/platform-sdk/pkg/platformclientmodels"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/factory"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/repository"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/service/platform"
 	"github.com/pkg/errors"
-
-	"revocation-grpc-plugin-server-go-cli/pkg/client/platformservice"
-	"revocation-grpc-plugin-server-go-cli/pkg/client/platformservice/openapi2/models"
 )
 
 var (
@@ -32,36 +30,51 @@ var (
 var errEmptyStoreID = errors.New("error empty store id, createStore first")
 
 type PlatformDataUnit struct {
-	CLIConfig         *Config
-	ConfigRepo        repository.ConfigRepository
-	TokenRepo         repository.TokenRepository
-	PlatformClientSvc *platformservice.Client
-	storeID           string
-	CurrencyCode      string
+	CLIConfig    *Config
+	ConfigRepo   repository.ConfigRepository
+	TokenRepo    repository.TokenRepository
+	storeID      string
+	CurrencyCode string
 }
 
 func (p *PlatformDataUnit) SetPlatformServiceGrpcTarget() error {
+	servicePluginCfgWrapper := platform.ServicePluginConfigService{
+		Client:           factory.NewPlatformClient(p.ConfigRepo),
+		ConfigRepository: p.ConfigRepo,
+		TokenRepository:  p.TokenRepo,
+	}
+
 	if p.CLIConfig.GRPCServerURL != "" {
 		fmt.Printf("(Custom Host: %s) ", p.CLIConfig.GRPCServerURL)
 
-		return p.PlatformClientSvc.UpdateRevocationPluginConfig(p.CLIConfig.ABNamespace, &models.RevocationPluginConfigUpdate{
-			ExtendType: Ptr(models.RevocationPluginConfigInfoExtendTypeCUSTOM),
-			CustomConfig: &models.BaseCustomConfig{
-				ConnectionType:    Ptr(models.BaseCustomConfigConnectionTypeINSECURE),
-				GrpcServerAddress: Ptr(p.CLIConfig.GRPCServerURL),
+		_, err := servicePluginCfgWrapper.UpdateLootBoxPluginConfig1Short(&service_plugin_config.UpdateLootBoxPluginConfig1Params{
+			Namespace: p.CLIConfig.ABNamespace,
+			Body: &platformclientmodels.RevocationPluginConfigUpdate{
+				ExtendType: Ptr(platformclientmodels.LootBoxPluginConfigUpdateExtendTypeCUSTOM),
+				CustomConfig: &platformclientmodels.BaseCustomConfig{
+					ConnectionType:    Ptr(platformclientmodels.BaseCustomConfigConnectionTypeINSECURE),
+					GrpcServerAddress: Ptr(p.CLIConfig.GRPCServerURL),
+				},
 			},
 		})
+
+		return err
 	}
 
 	if p.CLIConfig.ExtendAppName != "" {
 		fmt.Printf("(Extend App: %s) ", p.CLIConfig.ExtendAppName)
 
-		return p.PlatformClientSvc.UpdateRevocationPluginConfig(p.CLIConfig.ABNamespace, &models.RevocationPluginConfigUpdate{
-			ExtendType: Ptr(models.RevocationPluginConfigInfoExtendTypeAPP),
-			AppConfig: &models.AppConfig{
-				AppName: Ptr(p.CLIConfig.ExtendAppName),
+		_, err := servicePluginCfgWrapper.UpdateLootBoxPluginConfig1Short(&service_plugin_config.UpdateLootBoxPluginConfig1Params{
+			Namespace: p.CLIConfig.ABNamespace,
+			Body: &platformclientmodels.RevocationPluginConfigUpdate{
+				ExtendType: Ptr(platformclientmodels.LootBoxPluginConfigUpdateExtendTypeAPP),
+				AppConfig: &platformclientmodels.AppConfig{
+					AppName: Ptr(p.CLIConfig.ExtendAppName),
+				},
 			},
 		})
+
+		return err
 	}
 
 	return nil
@@ -162,7 +175,15 @@ func (p *PlatformDataUnit) CreateCategory(categoryPath string, doPublish bool) e
 }
 
 func (p *PlatformDataUnit) UnsetPlatformServiceGrpcTarget() error {
-	return p.PlatformClientSvc.DeleteRevocationPluginConfig(p.CLIConfig.ABNamespace)
+	servicePluginCfgWrapper := platform.ServicePluginConfigService{
+		Client:           factory.NewPlatformClient(p.ConfigRepo),
+		ConfigRepository: p.ConfigRepo,
+		TokenRepository:  p.TokenRepo,
+	}
+
+	return servicePluginCfgWrapper.DeleteLootBoxPluginConfig1Short(&service_plugin_config.DeleteLootBoxPluginConfig1Params{
+		Namespace: p.CLIConfig.ABNamespace,
+	})
 }
 
 func (p *PlatformDataUnit) DeleteCurrency() error {
