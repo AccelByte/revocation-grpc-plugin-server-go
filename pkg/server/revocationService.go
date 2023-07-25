@@ -21,8 +21,8 @@ func NewRevocationServiceServer() *RevocationServiceServer {
 	return &RevocationServiceServer{}
 }
 
-func (s *RevocationServiceServer) Revoke(ctx context.Context, req *pb.RevokeRequest) (*pb.RevokeResponse, error) {
-	logrus.Infof("Revocation Request: %s", LogJSONFormatter(req))
+func (s *RevocationServiceServer) Revoke(_ context.Context, req *pb.RevokeRequest) (*pb.RevokeResponse, error) {
+	logrus.Infof("Revocation Request: %s", logJSONFormatter(req))
 	revocationEntryType := revocation.RevokeEntryType(req.GetRevokeEntryType())
 	revocationObj, err := revocation.GetRevocation(revocationEntryType)
 	if err != nil {
@@ -39,7 +39,7 @@ func (s *RevocationServiceServer) Revoke(ctx context.Context, req *pb.RevokeRequ
 			Reason: err.Error(),
 		}, nil
 	}
-	logrus.Infof("Revocation Response: %s", LogJSONFormatter(revocationResp))
+	logrus.Infof("Revocation Response: %s", logJSONFormatter(revocationResp))
 
 	return revocationResp, nil
 }
