@@ -34,13 +34,13 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	"revocation-grpc-plugin-server-go/pkg/common"
-	pb "revocation-grpc-plugin-server-go/pkg/pb"
-	"revocation-grpc-plugin-server-go/pkg/server"
-
 	sdkAuth "github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/utils/auth"
 	promgrpc "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	prometheusCollectors "github.com/prometheus/client_golang/prometheus/collectors"
+
+	"revocation-grpc-plugin-server-go/pkg/common"
+	pb "revocation-grpc-plugin-server-go/pkg/pb"
+	"revocation-grpc-plugin-server-go/pkg/service"
 )
 
 const (
@@ -123,7 +123,7 @@ func main() {
 	)
 
 	// Register Filter Service
-	revocationServiceServer := server.NewRevocationServiceServer()
+	revocationServiceServer := service.NewRevocationServiceServer()
 	pb.RegisterRevocationServer(grpcServer, revocationServiceServer)
 
 	// Enable gRPC Reflection

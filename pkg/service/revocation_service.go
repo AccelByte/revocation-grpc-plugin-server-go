@@ -2,13 +2,13 @@
 // This is licensed software from AccelByte Inc, for limitations
 // and restrictions contact your company contract manager.
 
-package server
+package service
 
 import (
 	"context"
 
 	pb "revocation-grpc-plugin-server-go/pkg/pb"
-	"revocation-grpc-plugin-server-go/pkg/server/revocation"
+	"revocation-grpc-plugin-server-go/pkg/service/revocation"
 )
 
 type RevocationServiceServer struct {
