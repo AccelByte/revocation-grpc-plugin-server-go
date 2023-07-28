@@ -2,15 +2,13 @@
 // This is licensed software from AccelByte Inc, for limitations
 // and restrictions contact your company contract manager.
 
-package server
+package service
 
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
-
 	pb "revocation-grpc-plugin-server-go/pkg/pb"
-	"revocation-grpc-plugin-server-go/pkg/server/revocation"
+	"revocation-grpc-plugin-server-go/pkg/service/revocation"
 )
 
 type RevocationServiceServer struct {
@@ -22,7 +20,6 @@ func NewRevocationServiceServer() *RevocationServiceServer {
 }
 
 func (s *RevocationServiceServer) Revoke(_ context.Context, req *pb.RevokeRequest) (*pb.RevokeResponse, error) {
-	logrus.Infof("Revocation Request: %s", logJSONFormatter(req))
 	revocationEntryType := revocation.RevokeEntryType(req.GetRevokeEntryType())
 	revocationObj, err := revocation.GetRevocation(revocationEntryType)
 	if err != nil {
@@ -39,7 +36,6 @@ func (s *RevocationServiceServer) Revoke(_ context.Context, req *pb.RevokeReques
 			Reason: err.Error(),
 		}, nil
 	}
-	logrus.Infof("Revocation Response: %s", logJSONFormatter(revocationResp))
 
 	return revocationResp, nil
 }
