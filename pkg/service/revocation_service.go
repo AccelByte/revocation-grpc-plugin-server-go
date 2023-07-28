@@ -36,5 +36,6 @@ func (s *RevocationServiceServer) Revoke(_ context.Context, req *pb.RevokeReques
 			Reason: err.Error(),
 		}, nil
 	}
+
 	return revocationResp, nil
 }
