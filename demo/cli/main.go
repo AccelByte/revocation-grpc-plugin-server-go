@@ -7,6 +7,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/AccelByte/accelbyte-go-sdk/iam-sdk/pkg/iamclient/users"
 	"github.com/AccelByte/accelbyte-go-sdk/iam-sdk/pkg/iamclientmodels"
@@ -178,9 +179,14 @@ func startTesting(
 	}
 	fmt.Println("[OK]")
 
+	revocationStatus := revocationdemo.Val(revocationResult.Status)
 	fmt.Println("Revocation Result: ")
 	fmt.Printf("Revocation history id: %s\n", revocationdemo.Val(revocationResult.ID))
-	fmt.Printf("Revocation status: %s\n", revocationdemo.Val(revocationResult.Status))
+	fmt.Printf("Revocation status: %s\n", revocationStatus)
+
+	if strings.ToUpper(revocationStatus) == "FAIL" {
+		return fmt.Errorf("revocation status is FAIL")
+	}
 
 	for _, r := range revocationResult.ItemRevocations {
 		fmt.Printf("item Id: %s\n", r.ItemID)

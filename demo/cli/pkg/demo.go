@@ -47,7 +47,7 @@ func (p *PlatformDataUnit) SetPlatformServiceGrpcTarget() error {
 	if p.CLIConfig.GRPCServerURL != "" {
 		fmt.Printf("(Custom Host: %s) ", p.CLIConfig.GRPCServerURL)
 
-		_, err := servicePluginCfgWrapper.UpdateLootBoxPluginConfig1Short(&service_plugin_config.UpdateLootBoxPluginConfig1Params{
+		_, err := servicePluginCfgWrapper.UpdateRevocationPluginConfigShort(&service_plugin_config.UpdateRevocationPluginConfigParams{
 			Namespace: p.CLIConfig.ABNamespace,
 			Body: &platformclientmodels.RevocationPluginConfigUpdate{
 				ExtendType: Ptr(platformclientmodels.LootBoxPluginConfigUpdateExtendTypeCUSTOM),
@@ -64,7 +64,7 @@ func (p *PlatformDataUnit) SetPlatformServiceGrpcTarget() error {
 	if p.CLIConfig.ExtendAppName != "" {
 		fmt.Printf("(Extend App: %s) ", p.CLIConfig.ExtendAppName)
 
-		_, err := servicePluginCfgWrapper.UpdateLootBoxPluginConfig1Short(&service_plugin_config.UpdateLootBoxPluginConfig1Params{
+		_, err := servicePluginCfgWrapper.UpdateRevocationPluginConfigShort(&service_plugin_config.UpdateRevocationPluginConfigParams{
 			Namespace: p.CLIConfig.ABNamespace,
 			Body: &platformclientmodels.RevocationPluginConfigUpdate{
 				ExtendType: Ptr(platformclientmodels.LootBoxPluginConfigUpdateExtendTypeAPP),
