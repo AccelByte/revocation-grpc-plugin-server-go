@@ -44,3 +44,14 @@ imagex_push:
 	docker buildx inspect $(BUILDER) || docker buildx create --name $(BUILDER) --use
 	docker buildx build -t ${REPO_URL}:${IMAGE_TAG} --platform linux/arm64/v8,linux/amd64 --push .
 	docker buildx rm --keep-state $(BUILDER)
+
+test_integration:
+	@test -n "$(ENV_PATH)" || (echo "ENV_PATH is not set"; exit 1)
+	docker build --tag revocation-test-integration -f Dockerfile.test-integration . && \
+	docker run --rm -it \
+		--env-file $(ENV_PATH) \
+		-e GOCACHE=/data/.cache/go-build \
+		-e GOPATH=/data/.cache/mod \
+		-u $$(id -u):$$(id -g) \
+		-v $$(pwd):/data \
+		-w /data revocation-test-integration ./test-integration.sh

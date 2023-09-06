@@ -62,3 +62,6 @@ pkg/pb/
 
 # Go build output
 revocation-grpc-plugin-server-go
+
+# vscode
+.vscode/settings.json
