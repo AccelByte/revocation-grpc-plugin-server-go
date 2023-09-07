@@ -1,3 +1,4 @@
+/* groovylint-disable Indentation */
 githubOwner = 'AccelByte'
 githubRepo = 'revocation-grpc-plugin-server-go'
 githubSsh = 'dhanarab-sdkbuild-ssh'
@@ -6,7 +7,7 @@ githubUrl = "git@github.com:${githubOwner}/${githubRepo}.git"
 
 pipeline {
   agent {
-    label "master"
+    label 'master'
   }
   stages {
     stage('Prepare') {
@@ -21,7 +22,7 @@ pipeline {
     stage('Push') {
       steps {
         script {
-          sh "git checkout master"
+          sh 'git checkout master'
           sshagent(credentials: [githubSsh])
           {
             sh "git push ${githubUrl} HEAD:main"
@@ -35,11 +36,9 @@ pipeline {
       script {
         message = """
             :no_entry: <${env.BUILD_URL}|${env.JOB_NAME}-${env.BUILD_NUMBER}> *failed*
-            
             |*Action*: Nightly github sync
-            
             |""".stripMargin()
-        slackSend(channel: "#activity-extend-engineering", color: '#FF0000', message: message)
+        slackSend(channel: '#activity-extend-engineering', color: '#FF0000', message: message)
       }
     }
   }

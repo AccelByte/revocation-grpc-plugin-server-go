@@ -1,3 +1,4 @@
+/* groovylint-disable DuplicateStringLiteral, Indentation, NestedBlockDepth */
 library(
   identifier: 'jenkins-shared-library@master',
   retriever: modernSCM(
@@ -8,8 +9,8 @@ library(
   )
 )
 
-bitbucketHttpsCredentials = "bitbucket-build-extend-https"
-bitbucketCredentialsSsh = "bitbucket-build-extend-ssh"
+bitbucketHttpsCredentials = 'bitbucket-build-extend-https'
+bitbucketCredentialsSsh = 'bitbucket-build-extend-ssh'
 
 bitbucketPayload = null
 bitbucketCommitHref = null
@@ -19,7 +20,7 @@ pipeline {
   stages {
     stage('Prepare') {
       agent {
-        label "master"
+        label 'master'
       }
       steps {
         script {
@@ -30,14 +31,16 @@ pipeline {
             }
           }
           if (bitbucketCommitHref) {
-            bitbucket.setBuildStatus(bitbucketHttpsCredentials, bitbucketCommitHref, "INPROGRESS", env.JOB_NAME, "${env.JOB_NAME}-${env.BUILD_NUMBER}", "Jenkins", "${env.BUILD_URL}console")
+            bitbucket.setBuildStatus(
+              bitbucketHttpsCredentials, bitbucketCommitHref, 'INPROGRESS', env.JOB_NAME,
+              "${env.JOB_NAME}-${env.BUILD_NUMBER}", 'Jenkins', "${env.BUILD_URL}console")
           }
         }
       }
     }
     stage('Lint') {
       agent {
-        label "justice-codegen-sdk"
+        label 'justice-codegen-sdk'
       }
       stages {
         stage('Lint Commits') {
@@ -53,46 +56,52 @@ pipeline {
             }
           }
           steps {
-            sh "npm install @commitlint/config-conventional@13.2.0"
+            sh 'npm install @commitlint/config-conventional@13.2.0'
             sh "commitlint --color false --verbose --from ${env.BITBUCKET_PULL_REQUEST_LATEST_COMMIT_FROM_TARGET_BRANCH}"
           }
         }
         stage('Lint Code') {
           steps {
-            sh "make lint"
+            sh 'make lint'
           }
         }
       }
     }
     stage('Build') {
       agent {
-        label "justice-codegen-sdk"
+        label 'justice-codegen-sdk'
       }
       steps {
-        sh "make build"
+        sh 'make build'
       }
     }
-    // stage('Test') {
-    //   agent {
-    //     label "justice-codegen-sdk"
-    //   }
-    //   steps {
-    //     sh "make test"
-    //   }
-    // }
+    stage('Test') {
+      agent {
+        label 'justice-codegen-sdk'
+      }
+      steps {
+        withCredentials([file(credentialsId: 'extend-sample-app-integration-test-env', variable: 'ENV_PATH')]) {
+          sh 'make test_integration ENV_PATH=$ENV_PATH'
+        }
+      }
+    }
   }
   post {
     success {
       script {
         if (bitbucketCommitHref) {
-          bitbucket.setBuildStatus(bitbucketHttpsCredentials, bitbucketCommitHref, "SUCCESSFUL", env.JOB_NAME, "${env.JOB_NAME}-${env.BUILD_NUMBER}", "Jenkins", "${env.BUILD_URL}console")
+          bitbucket.setBuildStatus(
+            bitbucketHttpsCredentials, bitbucketCommitHref, 'SUCCESSFUL', env.JOB_NAME,
+            "${env.JOB_NAME}-${env.BUILD_NUMBER}", 'Jenkins', "${env.BUILD_URL}console")
         }
       }
     }
     failure {
       script {
         if (bitbucketCommitHref) {
-          bitbucket.setBuildStatus(bitbucketHttpsCredentials, bitbucketCommitHref, "FAILED", env.JOB_NAME, "${env.JOB_NAME}-${env.BUILD_NUMBER}", "Jenkins", "${env.BUILD_URL}console")
+          bitbucket.setBuildStatus(
+            bitbucketHttpsCredentials, bitbucketCommitHref, 'FAILED', env.JOB_NAME,
+            "${env.JOB_NAME}-${env.BUILD_NUMBER}", 'Jenkins', "${env.BUILD_URL}console")
         }
       }
     }

@@ -65,3 +65,6 @@ revocation-grpc-plugin-server-go
 
 # vscode
 .vscode/settings.json
+
+sample_app_server
+sample_app_demo_cli
