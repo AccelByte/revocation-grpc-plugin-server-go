@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-BIN_SERVER_NAME=revocation_server
-BIN_DEMO_NAME=revocation_demo_cli
+BIN_SERVER_NAME=sample_app_server
+BIN_DEMO_NAME=sample_app_demo_cli
 
 echo "[*] Build sample app"
 go build -o $BIN_SERVER_NAME .
