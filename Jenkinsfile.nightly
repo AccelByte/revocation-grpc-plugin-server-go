@@ -75,6 +75,16 @@ pipeline {
         sh 'make build'
       }
     }
+    stage('Test') {
+      agent {
+        label 'justice-codegen-sdk'
+      }
+      steps {
+        withCredentials([file(credentialsId: 'extend-sample-app-integration-test-env', variable: 'ENV_PATH')]) {
+          sh 'make test_integration ENV_PATH=$ENV_PATH'
+        }
+      }
+    }
   }
   post {
     success {
