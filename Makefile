@@ -48,7 +48,7 @@ imagex_push:
 test_integration:
 	@test -n "$(ENV_PATH)" || (echo "ENV_PATH is not set"; exit 1)
 	docker build --tag revocation-test-integration -f Dockerfile.test-integration . && \
-	docker run --rm -it \
+	docker run --rm -t \
 		--env-file $(ENV_PATH) \
 		-e GOCACHE=/data/.cache/go-build \
 		-e GOPATH=/data/.cache/mod \
