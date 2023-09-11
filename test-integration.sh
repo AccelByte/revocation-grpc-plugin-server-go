@@ -12,6 +12,11 @@ go build -o $BIN_SERVER_NAME .
 
 ./$BIN_SERVER_NAME &
 (for _ in {1..10}; do bash -c "timeout 1 echo > /dev/tcp/127.0.0.1/8080" 2>/dev/null && exit 0 || sleep 3s; done; exit 1)
+if [ $? -ne 0 ]
+then
+    echo "- [!] Failed to run sample app"
+    exit 1
+fi
 
 echo "- [*] Sample app running"
 

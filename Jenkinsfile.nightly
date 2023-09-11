@@ -12,7 +12,6 @@ library(
 bitbucketHttpsCredentials = 'bitbucket-build-extend-https'
 bitbucketCredentialsSsh = 'bitbucket-build-extend-ssh'
 
-bitbucketPayload = null
 bitbucketCommitHref = null
 
 pipeline {
@@ -24,17 +23,12 @@ pipeline {
       }
       steps {
         script {
-          if (env.BITBUCKET_PAYLOAD) {
-            bitbucketPayload = readJSON text: env.BITBUCKET_PAYLOAD
-            if (bitbucketPayload.pullrequest) {
-              bitbucketCommitHref = bitbucketPayload.pullrequest.source.commit.links.self.href
-            }
-          }
-          if (bitbucketCommitHref) {
-            bitbucket.setBuildStatus(
+          gitRepositoryName = git.getRepositoryName()
+          gitCommitHash = git.getCommitHash()
+          bitbucketCommitHref = "https://api.bitbucket.org/2.0/repositories/accelbyte/${gitRepositoryName}/commit/${gitCommitHash}"
+          bitbucket.setBuildStatus(
               bitbucketHttpsCredentials, bitbucketCommitHref, 'INPROGRESS', env.JOB_NAME,
               "${env.JOB_NAME}-${env.BUILD_NUMBER}", 'Jenkins', "${env.BUILD_URL}console")
-          }
         }
       }
     }
@@ -52,20 +46,22 @@ pipeline {
   post {
     success {
       script {
-        if (bitbucketCommitHref) {
-          bitbucket.setBuildStatus(
+        bitbucket.setBuildStatus(
             bitbucketHttpsCredentials, bitbucketCommitHref, 'SUCCESSFUL', env.JOB_NAME,
             "${env.JOB_NAME}-${env.BUILD_NUMBER}", 'Jenkins', "${env.BUILD_URL}console")
-        }
       }
     }
     failure {
       script {
-        if (bitbucketCommitHref) {
-          bitbucket.setBuildStatus(
+        bitbucket.setBuildStatus(
             bitbucketHttpsCredentials, bitbucketCommitHref, 'FAILED', env.JOB_NAME,
             "${env.JOB_NAME}-${env.BUILD_NUMBER}", 'Jenkins', "${env.BUILD_URL}console")
-        }
+
+        message = """
+            :no_entry: <${env.BUILD_URL}|${env.JOB_NAME}-${env.BUILD_NUMBER}> *failed*
+
+            |""".stripMargin()
+        slackSend(channel: '#activity-justice-codegen-sdk', color: '#FF0000', message: message)
       }
     }
   }

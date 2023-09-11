@@ -45,7 +45,7 @@ imagex_push:
 	docker buildx build -t ${REPO_URL}:${IMAGE_TAG} --platform linux/arm64/v8,linux/amd64 --push .
 	docker buildx rm --keep-state $(BUILDER)
 
-test_integration:
+test_integration: proto
 	@test -n "$(ENV_PATH)" || (echo "ENV_PATH is not set"; exit 1)
 	docker build --tag revocation-test-integration -f Dockerfile.test-integration . && \
 	docker run --rm -t \
