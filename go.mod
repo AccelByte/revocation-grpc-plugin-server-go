@@ -3,7 +3,7 @@ module revocation-grpc-plugin-server-go
 go 1.19
 
 require (
-	github.com/AccelByte/accelbyte-go-sdk v0.44.0
+	github.com/AccelByte/accelbyte-go-sdk v0.55.0
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.0.0-rc.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0-rc.5
 	github.com/pkg/errors v0.9.1
@@ -17,8 +17,9 @@ require (
 	go.opentelemetry.io/otel/sdk v1.15.1
 	go.opentelemetry.io/otel/trace v1.15.1
 	google.golang.org/grpc v1.55.0
-	google.golang.org/protobuf v1.30.0
 )
+
+require google.golang.org/protobuf v1.30.0
 
 require (
 	github.com/AccelByte/bloom v0.0.0-20180915202807-98c052463922 // indirect
@@ -27,7 +28,6 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/caarlos0/env/v7 v7.1.0
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
