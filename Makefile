@@ -45,13 +45,27 @@ imagex_push:
 	docker buildx build -t ${REPO_URL}:${IMAGE_TAG} --platform linux/arm64/v8,linux/amd64 --push .
 	docker buildx rm --keep-state $(BUILDER)
 
-test_integration: proto
+test_integration_local_hosted: proto
 	@test -n "$(ENV_PATH)" || (echo "ENV_PATH is not set"; exit 1)
-	docker build --tag revocation-test-integration -f Dockerfile.test-integration . && \
+	docker build --tag revocation-test-integration -f test/integration/Dockerfile test/integration && \
 	docker run --rm -t \
 		--env-file $(ENV_PATH) \
 		-e GOCACHE=/data/.cache/go-build \
 		-e GOPATH=/data/.cache/mod \
 		-u $$(id -u):$$(id -g) \
 		-v $$(pwd):/data \
-		-w /data revocation-test-integration ./test-integration.sh
+		-w /data revocation-test-integration bash ./test/integration/test-local-hosted.sh
+
+test_integration_accelbyte_hosted: proto
+	@test -n "$(ENV_PATH)" || (echo "ENV_PATH is not set"; exit 1)
+	docker build --tag revocation-test-integration -f test/integration/Dockerfile test/integration && \
+	docker run --rm -t \
+		--env-file $(ENV_PATH) \
+		-e GOCACHE=/data/.cache/go-build \
+		-e GOPATH=/data/.cache/mod \
+		-e DOCKER_CONFIG=/tmp/.docker \
+		-u $$(id -u):$$(id -g) \
+		--group-add $$(getent group docker | cut -d ':' -f 3) \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $$(pwd):/data \
+		-w /data revocation-test-integration bash ./test/integration/test-accelbyte-hosted.sh

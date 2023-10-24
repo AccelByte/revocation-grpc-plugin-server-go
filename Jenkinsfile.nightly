@@ -32,13 +32,29 @@ pipeline {
         }
       }
     }
-    stage('Test') {
+    stage('Test Integration Local Hosted') {
       agent {
         label 'justice-codegen-sdk'
       }
+      options {
+        lock("justice-demo-serversdktest")
+      }
       steps {
         withCredentials([file(credentialsId: 'extend-sample-app-integration-test-env', variable: 'ENV_PATH')]) {
-          sh 'make test_integration ENV_PATH=$ENV_PATH'
+          sh 'make test_integration_local_hosted ENV_PATH=$ENV_PATH'
+        }
+      }
+    }
+    stage('Test Integration AccelByte Hosted') {
+      agent {
+        label 'justice-codegen-sdk'
+      }
+      options {
+        lock("justice-demo-serversdktest")
+      }
+      steps {
+        withCredentials([file(credentialsId: 'extend-sample-app-integration-test-env', variable: 'ENV_PATH')]) {
+          sh 'make test_integration_accelbyte_hosted ENV_PATH=$ENV_PATH'
         }
       }
     }
