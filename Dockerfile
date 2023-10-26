@@ -15,16 +15,16 @@ COPY go.mod go.sum .
 RUN go mod download
 COPY . .
 COPY --from=proto /build/pkg/pb pkg/pb
-RUN env GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o loobox-roll-function-grpc-plugin-server-go_$TARGETOS-$TARGETARCH
+RUN env GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o revocation-grpc-plugin-server-go_$TARGETOS-$TARGETARCH
 
 
 FROM alpine:3.17.0
 ARG TARGETOS
 ARG TARGETARCH
 WORKDIR /app
-COPY --from=builder /build/loobox-roll-function-grpc-plugin-server-go_$TARGETOS-$TARGETARCH loobox-roll-function-grpc-plugin-server-go
+COPY --from=builder /build/revocation-grpc-plugin-server-go_$TARGETOS-$TARGETARCH revocation-grpc-plugin-server-go
 # Plugin arch gRPC server port
 EXPOSE 6565
 # Prometheus /metrics web server port
 EXPOSE 8080
-CMD [ "/app/loobox-roll-function-grpc-plugin-server-go" ]
+CMD [ "/app/revocation-grpc-plugin-server-go" ]
