@@ -30,10 +30,30 @@ function clean_up()
 {
     echo '# Delete Extend app'
     
-    api_curl "https://demo.accelbyte.io/csm/v1/admin/namespaces/$AB_NAMESPACE/apps/$APP_NAME" \
+    api_curl "${AB_BASE_URL}/csm/v1/admin/namespaces/$AB_NAMESPACE/apps/$APP_NAME" \
+        -X 'DELETE' \
+        -H "Authorization: Bearer $ACCESS_TOKEN"
+
+    echo '# Delete OAuth client'
+
+    OAUTH_CLIENT_LIST=$(api_curl "${AB_BASE_URL}/iam/v3/admin/namespaces/$AB_NAMESPACE/clients?clientName=extend-$APP_NAME&limit=20" \
+        -H "Authorization: Bearer $ACCESS_TOKEN")
+
+    OAUTH_CLIENT_LIST_COUNT=$(echo "$OAUTH_CLIENT_LIST" | jq '.data | length')
+
+    if [ "$OAUTH_CLIENT_LIST_COUNT" -eq 0 ] || [ "$OAUTH_CLIENT_LIST_COUNT" -gt 1 ]; then
+      echo "Failed to to clean up OAuth client (name: extend-$APP_NAME)"
+      exit 1
+    fi
+
+    OAUTH_CLIENT_ID="$(echo "$OAUTH_CLIENT_LIST" | jq -r '.data[0].clientId')"
+
+    api_curl "${AB_BASE_URL}/iam/v3/admin/namespaces/$AB_NAMESPACE/clients/$OAUTH_CLIENT_ID" \
         -X 'DELETE' \
         -H "Authorization: Bearer $ACCESS_TOKEN"
 }
+
+APP_NAME="${APP_NAME}-$(echo $RANDOM | sha1sum | head -c 8)"   # Add random suffix to make it easy to clean up
 
 echo '# Downloading extend-helper-cli'
 
@@ -69,12 +89,12 @@ for _ in {1..60}; do
     if [ "$STATUS" = "S" ]; then
         break
     fi
-    echo "Waiting until Extend app created (status $STATUS)"
+    echo "Waiting until Extend app created (status: $STATUS)"
     sleep 10
 done
 
 if ! [ "$STATUS" = "S" ]; then
-    echo "Failed to create Extend app (status $STATUS)"
+    echo "Failed to create Extend app (status: $STATUS)"
     exit 1
 fi
 
@@ -105,12 +125,12 @@ for _ in {1..60}; do
     if [ "$STATUS" = "R" ]; then
         break
     fi
-    echo "Waiting until Extend app deployed (status $STATUS)"
+    echo "Waiting until Extend app deployed (status: $STATUS)"
     sleep 10
 done
 
 if ! [ "$STATUS" = "R" ]; then
-    echo "Failed to deploy Extend app (status $STATUS)"
+    echo "Failed to deploy Extend app (status: $STATUS)"
     exit 1
 fi
 
