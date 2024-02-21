@@ -3,7 +3,7 @@ module revocation-grpc-plugin-server-go-cli
 go 1.19
 
 require (
-	github.com/AccelByte/accelbyte-go-sdk v0.50.0
+	github.com/AccelByte/accelbyte-go-sdk v0.64.1
 	github.com/caarlos0/env/v7 v7.1.0
 	github.com/pkg/errors v0.9.1
 )
@@ -33,6 +33,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
+	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/willf/bitset v1.1.11 // indirect

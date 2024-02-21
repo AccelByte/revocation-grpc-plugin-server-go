@@ -181,7 +181,7 @@ func (p *PlatformDataUnit) UnsetPlatformServiceGrpcTarget() error {
 		TokenRepository:  p.TokenRepo,
 	}
 
-	return servicePluginCfgWrapper.DeleteLootBoxPluginConfig1Short(&service_plugin_config.DeleteLootBoxPluginConfig1Params{
+	return servicePluginCfgWrapper.DeleteLootBoxPluginConfigShort(&service_plugin_config.DeleteLootBoxPluginConfigParams{
 		Namespace: p.CLIConfig.ABNamespace,
 	})
 }
@@ -258,8 +258,8 @@ func (p *PlatformDataUnit) CreateCurrency() error {
 		Body: &platformclientmodels.CurrencyCreate{
 			CurrencyCode:   Ptr(p.CurrencyCode),
 			CurrencySymbol: "$V",
-			CurrencyType:   platformclientmodels.CurrencyCreateCurrencyTypeREAL,
-			Decimals:       2,
+			CurrencyType:   platformclientmodels.CurrencyCreateCurrencyTypeVIRTUAL,
+			Decimals:       0,
 		},
 	})
 
@@ -344,7 +344,7 @@ func (p *PlatformDataUnit) CreateOrder(userID string, itemInfo SimpleItemInfo) (
 		Body: &platformclientmodels.OrderCreate{
 			CurrencyCode:    Ptr(p.CurrencyCode),
 			ItemID:          Ptr(itemInfo.ID),
-			Price:           Ptr(int32(0)),
+			Price:           int32(0),
 			Quantity:        Ptr(int32(1)),
 			DiscountedPrice: Ptr(int32(0)),
 		},
