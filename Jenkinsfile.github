@@ -5,6 +5,8 @@ githubSsh = 'accelbyte-sdk-sdkbuild-ssh'
 
 githubUrl = "git@github.com:${githubOwner}/${githubRepo}.git"
 
+jobChannel = env.SLACK_CHANNEL_ACTIVITY_EXTEND_ENGINEERING ? env.SLACK_CHANNEL_ACTIVITY_EXTEND_ENGINEERING : "#activity-extend-engineering"
+
 pipeline {
   agent {
     label "extend-builder-batch"
@@ -38,7 +40,7 @@ pipeline {
             :no_entry: <${env.BUILD_URL}|${env.JOB_NAME}-${env.BUILD_NUMBER}> *failed*
             |*Action*: Nightly github sync
             |""".stripMargin()
-        slackSend(channel: '#activity-extend-engineering', color: '#FF0000', message: message)
+        slackSend(channel: jobChannel, color: '#FF0000', message: message)
       }
     }
   }
