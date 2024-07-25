@@ -7,9 +7,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/AccelByte/accelbyte-go-sdk/iam-sdk/pkg/iamclient/users"
+	"github.com/AccelByte/accelbyte-go-sdk/iam-sdk/pkg/iamclient/users_v4"
 	"github.com/AccelByte/accelbyte-go-sdk/iam-sdk/pkg/iamclientmodels"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/factory"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/repository"
@@ -35,22 +37,47 @@ func main() {
 	}
 
 	fmt.Print("Login to AccelByte... ")
-	err = oauthService.Login(config.ABUsername, config.ABPassword)
+	err = oauthService.LoginClient(&config.ABClientID, &config.ABClientSecret)
 	if err != nil {
 		log.Fatalf("Accelbyte account login failed: %s\n", err)
 	}
 	fmt.Println("[OK]")
 
-	usersService := &iam.UsersService{
+	usersService := &iam.UsersV4Service{
 		Client:           factory.NewIamClient(configRepo),
 		ConfigRepository: configRepo,
 		TokenRepository:  tokenRepo,
 	}
-	userInfo, err := usersService.PublicGetMyUserV3Short(&users.PublicGetMyUserV3Params{})
+	verified := true
+	nameId := revocationdemo.RandomString("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8)
+	dName := "Extend Test User " + nameId
+	username := fmt.Sprintf("extend_%s_user", nameId)
+	email := username + "@dummy.net"
+	country := "ID"
+	dob := "1990-01-01"
+	password := revocationdemo.RandomString("ABCDEFGHIJKlmnopqrstuvwxyz0123456789!@#$%^&", 16)
+
+	var acceptedPolicies []*iamclientmodels.LegalAcceptedPoliciesRequest
+	authType := iamclientmodels.AccountCreateTestUserRequestV4AuthTypeEMAILPASSWD
+	userInfo, err := usersService.PublicCreateTestUserV4Short(&users_v4.PublicCreateTestUserV4Params{
+		Body: &iamclientmodels.AccountCreateTestUserRequestV4{
+			AcceptedPolicies:  acceptedPolicies,
+			AuthType:          &authType,
+			Country:           &country,
+			DateOfBirth:       &dob,
+			DisplayName:       &dName,
+			EmailAddress:      &email,
+			Password:          &password,
+			UniqueDisplayName: dName,
+			Username:          &username,
+			Verified:          &verified,
+		},
+		Namespace: os.Getenv("AB_NAMESPACE"),
+	})
 	if err != nil {
 		log.Fatalf("Get user info failed: %s\n", err)
 	}
-	fmt.Printf("User: %s\n", userInfo.UserName)
+	fmt.Printf("Test User Created: %s\n", *userInfo.UserID)
 
 	// Start testing
 	err = startTesting(userInfo, config, configRepo, tokenRepo)
@@ -58,11 +85,11 @@ func main() {
 		fmt.Println("\n[FAILED]")
 		log.Fatal(err)
 	}
-	fmt.Println("[SUCCESS]")
+	fmt.Println("\n[SUCCESS]")
 }
 
 func startTesting(
-	userInfo *iamclientmodels.ModelUserResponseV3,
+	userInfo *iamclientmodels.AccountCreateUserResponseV4,
 	config *revocationdemo.Config,
 	configRepo repository.ConfigRepository,
 	tokenRepo repository.TokenRepository) error {
@@ -86,6 +113,13 @@ func startTesting(
 
 		fmt.Print("Deleting store... ")
 		err = pdu.DeleteStore()
+		if err != nil {
+			return
+		}
+		fmt.Println("[OK]")
+
+		fmt.Print("Deleting Test User... ")
+		err = deleteUser(userInfo, configRepo, tokenRepo)
 		if err != nil {
 			return
 		}
@@ -197,6 +231,26 @@ func startTesting(
 		fmt.Printf("skipped: %t\n", r.Skipped)
 		fmt.Printf("reason: %s\n", r.Reason)
 		fmt.Printf("custom revocation: %s\n", r.CustomRevocation)
+	}
+
+	return nil
+}
+
+func deleteUser(
+	userInfo *iamclientmodels.AccountCreateUserResponseV4,
+	configRepo repository.ConfigRepository,
+	tokenRepo repository.TokenRepository) error {
+	userService := &iam.UsersService{
+		Client:           factory.NewIamClient(configRepo),
+		ConfigRepository: configRepo,
+		TokenRepository:  tokenRepo,
+	}
+	errDelete := userService.AdminDeleteUserInformationV3Short(&users.AdminDeleteUserInformationV3Params{
+		Namespace: *userInfo.Namespace,
+		UserID:    *userInfo.UserID,
+	})
+	if errDelete != nil {
+		return errDelete
 	}
 
 	return nil

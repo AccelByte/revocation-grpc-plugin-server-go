@@ -19,6 +19,7 @@ import (
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/factory"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/repository"
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/service/platform"
+
 	"github.com/pkg/errors"
 )
 
@@ -218,7 +219,11 @@ func (p *PlatformDataUnit) DeleteStore() error {
 		Namespace: p.CLIConfig.ABNamespace,
 	})
 
-	return fmt.Errorf("delete published store error: %w", err)
+	if err != nil {
+		return fmt.Errorf("delete published store error: %w", err)
+	}
+
+	return nil
 }
 
 func (p *PlatformDataUnit) UpdateRevocationConfig() error {
@@ -338,15 +343,16 @@ func (p *PlatformDataUnit) CreateOrder(userID string, itemInfo SimpleItemInfo) (
 		TokenRepository:  p.TokenRepo,
 	}
 
-	return orderWrapper.PublicCreateUserOrderShort(&order.PublicCreateUserOrderParams{
+	return orderWrapper.AdminCreateUserOrderShort(&order.AdminCreateUserOrderParams{
 		Namespace: p.CLIConfig.ABNamespace,
 		UserID:    userID,
-		Body: &platformclientmodels.OrderCreate{
+		Body: &platformclientmodels.AdminOrderCreate{
 			CurrencyCode:    Ptr(p.CurrencyCode),
 			ItemID:          Ptr(itemInfo.ID),
 			Price:           int32(0),
 			Quantity:        Ptr(int32(1)),
 			DiscountedPrice: Ptr(int32(0)),
+			Region:          Ptr("US"),
 		},
 	})
 }

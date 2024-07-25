@@ -239,6 +239,7 @@ the `gRPC server` needs to be exposed to the internet. To do this without requir
    - For AGS Premium customers:
       - `ADMIN:NAMESPACE:{namespace}:PLUGIN:REVOCATION [UPDATE,DELETE]`
       - `ADMIN:NAMESPACE:{namespace}:REVOCATION [UPDATE]`
+      - `ADMIN:NAMESPACE:{namespace}:USER:*:ORDER [CREATE]`
       - `ADMIN:NAMESPACE:{namespace}:USER:*:REVOCATION [UPDATE]`
       - `ADMIN:NAMESPACE:{namespace}:STORE [CREATE,READ,UPDATE,DELETE]`
       - `ADMIN:NAMESPACE:{namespace}:CATEGORY [CREATE]`
@@ -250,6 +251,7 @@ the `gRPC server` needs to be exposed to the internet. To do this without requir
       - Platform Store -> Revocation (Update, Delete)
       - Platform Store -> Service Plugin Config (Read, Update, Delete)
       - Platform Store -> Store (Create, Read, Update, Delete)
+      - Platform Store -> Order (Create)
       - Platform Store -> Category (Create)
       - Platform Store -> Currency (Create, Read, Delete)
       - Platform Store -> Item (Create, Read, Delete)
