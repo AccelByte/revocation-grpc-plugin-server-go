@@ -87,12 +87,10 @@ func main() {
 
 	srvMetrics := promgrpc.NewServerMetrics()
 	unaryServerInterceptors := []grpc.UnaryServerInterceptor{
-		otelgrpc.UnaryServerInterceptor(),
 		srvMetrics.UnaryServerInterceptor(),
 		logging.UnaryServerInterceptor(common.InterceptorLogger(logrusLogger), loggingOptions...),
 	}
 	streamServerInterceptors := []grpc.StreamServerInterceptor{
-		otelgrpc.StreamServerInterceptor(),
 		srvMetrics.StreamServerInterceptor(),
 		logging.StreamServerInterceptor(common.InterceptorLogger(logrusLogger), loggingOptions...),
 	}
@@ -115,6 +113,7 @@ func main() {
 
 	// Create gRPC Server
 	grpcServer := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(unaryServerInterceptors...),
 		grpc.ChainStreamInterceptor(streamServerInterceptors...),
 	)
