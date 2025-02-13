@@ -165,9 +165,10 @@ func main() {
 	logrus.Infof("set tracer provider: (name: %s environment: %s id: %d)", serviceName, environment, id)
 
 	// Set Text Map Propagator
+	b := b3.New(b3.WithInjectEncoding(b3.B3MultipleHeader))
 	otel.SetTextMapPropagator(
 		propagation.NewCompositeTextMapPropagator(
-			b3.New(),
+			b,
 			propagation.TraceContext{},
 			propagation.Baggage{},
 		),
