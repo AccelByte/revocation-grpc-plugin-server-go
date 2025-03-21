@@ -15,6 +15,7 @@ import (
 	"os/signal"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/AccelByte/accelbyte-go-sdk/services-api/pkg/factory"
@@ -195,6 +196,8 @@ func main() {
 	logrus.Infof("gRPC server started")
 	logrus.Infof("app server started")
 
-	ctx, _ = signal.NotifyContext(ctx, os.Interrupt)
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	defer stop()
 	<-ctx.Done()
+	logrus.Infof("signal received")
 }
